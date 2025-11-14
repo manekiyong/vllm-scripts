@@ -10,12 +10,6 @@ fi
 # Additional arguments are passed directly to the Docker command
 ADDITIONAL_ARGS=("$@")
 
-# Validate node type
-if [ "${NODE_TYPE}" != "--head" ] && [ "${NODE_TYPE}" != "--worker" ]; then
-    echo "Error: Node type must be --head or --worker"
-    exit 1
-fi
-
 # Define a function to cleanup on EXIT signal
 cleanup() {
     docker stop node
