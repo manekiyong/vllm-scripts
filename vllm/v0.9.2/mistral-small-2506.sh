@@ -1,0 +1,29 @@
+vllm serve /models/huggingface/mistralai/Mistral-Small-3.2-24B-Instruct-2506 \
+    --host '0.0.0.0' \
+    --port 8000 \
+    --uvicorn_log_level info \
+    --allowed_origins '["*"]' \
+    --allowed_methods '["*"]' \
+    --allowed_headers '["*"]' \
+    --served_model_name mistral-small-2506 \
+    --response_role assistant \
+    --ssl_cert_reqs 0 \
+    --enable-auto-tool-choice \
+    --tool-call-parser mistral \
+    --config-format mistral \
+    --tokenizer_mode mistral \
+    --load_format mistral \
+    --enable-prompt-tokens-details \
+    --dtype half \
+    --kv_cache_dtype auto \
+    --max_model_len 65536 \
+    --max_seq_len_to_capture 65536 \
+    --pipeline_parallel_size 1 \
+    --tensor_parallel_size 2 \
+    --block_size 16 \
+    --seed 0 \
+    --swap_space 1 \
+    --gpu_memory_utilization 0.94 \
+    --max_num_batched_tokens 32768 \
+    --max_num_seqs 4 \
+    --enforce-eager

@@ -1,0 +1,31 @@
+vllm serve /models/huggingface/google/gemma-3-4b-it \
+    --host '0.0.0.0' \
+    --port 8000 \
+    --uvicorn_log_level info \
+    --allowed_origins '["*"]' \
+    --allowed_methods '["*"]' \
+    --allowed_headers '["*"]' \
+    --served_model_name gemma-3-4b-it \
+    --response_role assistant \
+    --ssl_cert_reqs 0 \
+    --config-format auto \
+    --tokenizer_mode auto \
+    --load_format auto \
+    --chat-template-content-format auto \
+    --dtype bfloat16 \
+    --kv_cache_dtype auto \
+    --max_model_len 32768 \
+    --max_seq_len_to_capture 32768 \
+    --pipeline_parallel_size 1 \
+    --tensor_parallel_size 1 \
+    --block_size 16 \
+    --seed 0 \
+    --swap_space 1 \
+    --gpu_memory_utilization 0.98 \
+    --max_num_batched_tokens 32768 \
+    --max_num_seqs 16 \
+    --device auto \
+    --enforce-eager \
+    --enable-auto-tool-choice \
+    --tool-call-parser pythonic \
+    --chat-template examples/tool_chat_template_gemma3_pythonic.jinja
