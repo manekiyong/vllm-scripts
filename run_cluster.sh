@@ -27,6 +27,7 @@ fi
 
 # Run the docker command with the user specified parameters and additional arguments
 docker run \
+    -d \
     --entrypoint /bin/bash \
     --network host \
     --name node \
