@@ -1,0 +1,22 @@
+vllm serve /models/huggingface/mistralai/Ministral-3-14B-Instruct-2512 \
+    --host '0.0.0.0' \
+    --port 8000 \
+    --uvicorn_log_level info \
+    --allowed_origins '["*"]' \
+    --allowed_methods '["*"]' \
+    --allowed_headers '["*"]' \
+    --served_model_name Ministral-3-14B-Instruct-2512 \
+    --tokenizer_mode mistral \
+    --config_format mistral \
+    --load_format mistral \
+    --enable-auto-tool-choice \
+    --tool-call-parser mistral \
+    --max_model_len 256000 \
+    --block_size 16 \
+    --pipeline_parallel_size 1 \
+    --tensor_parallel_size 2 \
+    --gpu_memory_utilization 0.9 \
+    --max_num_seqs 2 \
+    --seed 0 \
+    --swap_space 1 \
+    --enforce-eager

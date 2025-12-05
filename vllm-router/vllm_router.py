@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
@@ -95,7 +95,7 @@ def get_compute_server(model_name: str):
     # Fallback logic if model not found
     # Defaults to the model hosted in the link in address_to_check list
     global model_server_map
-    return model_server_map.get(model_name, address_to_check[0])
+    return model_server_map.get(model_name)
 
 @app.api_route("/available_models", methods=["GET"])
 async def available_models():
@@ -124,6 +124,9 @@ async def proxy(request: Request, full_path: str):
         model_name = params.get("model")
 
     compute_server = get_compute_server(model_name)
+    if not compute_server:
+        logger.info(f"Query from: {request.client.host} Failed to find model: {model_name}")
+        raise HTTPException(status_code=404, detail=f"Model {model_name} not found")
     compute_url = compute_server + url_path
     headers.pop("host", None)
     logger.info(f"Query from: {request.client.host} Routing to {compute_server}; Model: {model_name}")
