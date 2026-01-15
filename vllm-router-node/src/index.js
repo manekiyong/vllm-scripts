@@ -12,8 +12,8 @@ app.use(cors({
     credentials: false
 }));
 app.use(morgan('combined'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
 // Global State
 let modelServerMap = {};
@@ -28,7 +28,7 @@ const addressToCheck = [
 async function updateServerMap() {
     console.log("Updating server map...");
     const validModelMap = {};
-    
+
     // We use Promise.allSettled to check all servers in parallel/non-blocking way
     const checks = addressToCheck.map(async (link) => {
         try {
@@ -49,7 +49,7 @@ async function updateServerMap() {
 
 // Scheduler: Update map every 10 minutes
 // The original script uses 10 * 60 seconds.
-const INTERVAL = 10 * 60 * 1000; 
+const INTERVAL = 10 * 60 * 1000;
 setInterval(updateServerMap, INTERVAL);
 
 // Initial update on startup
@@ -86,7 +86,7 @@ app.all('/*', async (req, res) => {
     if (req.query.model) {
         modelName = req.query.model;
     }
-    
+
     // 2. From Body (if POST/PUT/PATCH)
     if (['POST', 'PUT', 'PATCH'].includes(method) && req.body) {
         if (req.body.model) {
@@ -113,13 +113,15 @@ app.all('/*', async (req, res) => {
             url: computeUrl,
             headers: headers,
             params: req.query, // axios handles params, but they are also in urlPath usually? 
-                               // req.originalUrl includes params. If we append urlPath to host, we duplicate params if we also pass params object?
-                               // Let's rely on constructing the full URL cleanly.
-                               // Actually, req.originalUrl DOES contain query string. 
-                               // So we should NOT pass `params: req.query` if we use `${computeServer}${req.originalUrl}`.
+            // req.originalUrl includes params. If we append urlPath to host, we duplicate params if we also pass params object?
+            // Let's rely on constructing the full URL cleanly.
+            // Actually, req.originalUrl DOES contain query string. 
+            // So we should NOT pass `params: req.query` if we use `${computeServer}${req.originalUrl}`.
             data: req.body,
             responseType: isStream ? 'stream' : 'json',
             validateStatus: () => true, // resolve promise for all status codes
+            maxBodyLength: Infinity,
+            maxContentLength: Infinity,
         };
 
         // Adjust URL construction:
