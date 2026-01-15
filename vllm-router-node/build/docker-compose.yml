@@ -1,0 +1,13 @@
+services:
+  vllm-router:
+    image: vllm-router-node:v0.0.1
+    stdin_open: true
+    tty: true
+    ulimits: 
+      memlock: -1
+    shm_size: 32gb
+    ports:
+      - 5000:5000
+    volumes:
+      - ../src:/src
+    command: "cp /src/index.js . && node index.js"
