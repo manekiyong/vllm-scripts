@@ -9,6 +9,7 @@ vllm serve /models/huggingface/mistralai/Ministral-3-14B-Reasoning-2512 \
     --tokenizer_mode mistral \
     --config_format mistral \
     --load_format mistral \
+    --reasoning-parser mistral \
     --enable-auto-tool-choice \
     --tool-call-parser mistral \
     --max_model_len 256000 \
