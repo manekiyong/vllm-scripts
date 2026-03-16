@@ -1,0 +1,13 @@
+vllm serve /models/huggingface/Qwen/Qwen3.5-27B \
+    --served_model_name Qwen3.5-27B \
+    --dtype bfloat16 \
+    --tool-call-parser hermes \
+    --enable_auto_tool_choice \
+    --max-model-len 65536 \
+    --allowed-local-media-path / \
+    --tensor_parallel_size 2 \
+    --block_size 16 \
+    --seed 0 \
+    --swap_space 1 \
+    --gpu_memory_utilization 0.94 \
+    --max_num_seqs 4
