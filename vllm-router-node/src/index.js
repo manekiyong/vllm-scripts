@@ -63,7 +63,6 @@ function getComputeServer(modelName) {
 
 app.get('/available_models', async (req, res) => {
     await updateServerMap();
-    console.log("### Executing /available_model")
     res.json({ available_models: Object.keys(modelServerMap) });
 });
 
@@ -71,7 +70,6 @@ app.get('/available_models', async (req, res) => {
 app.all('/*', async (req, res) => {
     // Skip checking for the /available_models route as it is handled above, 
     // but express matching handles that priority naturally.
-    console.log("### Executing /*")
     const method = req.method;
     const urlPath = req.originalUrl; // keeps query params
     const headers = { ...req.headers };
