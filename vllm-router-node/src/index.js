@@ -129,6 +129,12 @@ app.get('/v1/models', async (req, res) => {
     res.json(modelCatalogue);
 });
 
+// Left in for 
+app.get('/available_models', async (req, res) => {
+    await updateServerMap();
+    res.json({ available_models: Object.keys(modelServerMap) });
+});
+
 // Proxy Handler
 app.all('/*', async (req, res) => {
     // Skip checking for the /available_models route as it is handled above, 
