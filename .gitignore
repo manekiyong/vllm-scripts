@@ -4,6 +4,9 @@ __pycache__/
 *$py.class
 .history
 
+# Endpoints files for router
+endpoints.txt
+
 # C extensions
 *.so
 

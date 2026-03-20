@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
@@ -5,6 +7,7 @@ const morgan = require('morgan');
 
 const app = express();
 const PORT = 5000;
+const ENDPOINTS_FILE = process.env.ROUTER_ENDPOINTS_FILE || path.join(__dirname, 'endpoints.txt');
 
 // Middleware
 app.use(cors({
@@ -17,25 +20,77 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
 // Global State
 let modelServerMap = {};
+let modelCatalogue = { object: 'list', data: [] };
 
-// Addresses to check (hardcoded as per original script)
-const addressToCheck = [
-    'http://workstation1:port',
-    'http://workstation2:port',
-];
+function parseEndpointLine(line) {
+    const [rawUrl, rawToken] = line.split(/\s+/, 2);
+    const url = (rawUrl || '').replace(/\/+$/, '');
+    const token = rawToken ? rawToken.replace(/^\[/, '').replace(/\]$/, '') : null;
+
+    if (!url) {
+        return null;
+    }
+
+    return { url, token };
+}
+
+function formatAuthorizationHeader(token) {
+    if (!token) {
+        return null;
+    }
+
+    return token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+}
+
+function loadAddressesToCheck() {
+    try {
+        const fileContents = fs.readFileSync(ENDPOINTS_FILE, 'utf8');
+        const endpoints = fileContents
+            .split('\n')
+            .map((line) => line.trim())
+            .filter((line) => line && !line.startsWith('#'))
+            .map(parseEndpointLine)
+            .filter(Boolean);
+
+        console.log(`Loaded ${endpoints.length} endpoint(s) from ${ENDPOINTS_FILE}`);
+        return endpoints;
+    } catch (error) {
+        console.error(`Failed to read endpoints file ${ENDPOINTS_FILE}: ${error.message}`);
+        return [];
+    }
+}
+
+const addressToCheck = loadAddressesToCheck();
 
 // Helper to update the server map
 async function updateServerMap() {
     console.log("Updating server map...");
     const validModelMap = {};
+    const compiledCatalogue = [];
+    const seenModels = new Set();
 
     // We use Promise.allSettled to check all servers in parallel/non-blocking way
-    const checks = addressToCheck.map(async (link) => {
+    const checks = addressToCheck.map(async (endpoint) => {
         try {
-            const response = await axios.get(`${link.replace(/\/+$/, '')}/v1/models`, { timeout: 5000 });
-            if (response.status === 200 && response.data && response.data.data && response.data.data.length > 0) {
-                const model = response.data.data[0].id;
-                validModelMap[model] = link;
+            const response = await axios.get(`${endpoint.url}/v1/models`, {
+                timeout: 5000,
+                headers: endpoint.token
+                    ? { authorization: formatAuthorizationHeader(endpoint.token) }
+                    : undefined,
+            });
+            if (response.status === 200 && response.data && Array.isArray(response.data.data)) {
+                response.data.data.forEach((modelEntry) => {
+                    if (!modelEntry || !modelEntry.id) {
+                        return;
+                    }
+
+                    validModelMap[modelEntry.id] = endpoint;
+
+                    if (!seenModels.has(modelEntry.id)) {
+                        seenModels.add(modelEntry.id);
+                        compiledCatalogue.push(modelEntry);
+                    }
+                });
             }
         } catch (error) {
             // Ignore errors as per original script (just continue)
@@ -44,7 +99,15 @@ async function updateServerMap() {
 
     await Promise.all(checks);
     modelServerMap = validModelMap;
-    console.log(`Updated map: ${JSON.stringify(modelServerMap)}`);
+    modelCatalogue = {
+        object: 'list',
+        data: compiledCatalogue,
+    };
+    console.log(`Updated map: ${JSON.stringify(
+        Object.fromEntries(
+            Object.entries(modelServerMap).map(([model, endpoint]) => [model, endpoint.url])
+        )
+    )}`);
 }
 
 // Scheduler: Update map every 10 minutes
@@ -61,6 +124,12 @@ function getComputeServer(modelName) {
 
 // Routes
 
+app.get('/v1/models', async (req, res) => {
+    await updateServerMap();
+    res.json(modelCatalogue);
+});
+
+// Left in for 
 app.get('/available_models', async (req, res) => {
     await updateServerMap();
     res.json({ available_models: Object.keys(modelServerMap) });
@@ -102,8 +171,8 @@ app.all('/*', async (req, res) => {
         return res.status(404).json({ detail: `Model ${modelName} not found` });
     }
 
-    const computeUrl = `${computeServer.replace(/\/+$/, '')}${urlPath}`;
-    console.log(`Query from: ${req.ip} Routing to ${computeServer}; Model: ${modelName}`);
+    const computeUrl = `${computeServer.url}${urlPath}`;
+    console.log(`Query from: ${req.ip} Routing to ${computeServer.url}; Model: ${modelName}`);
 
     try {
         const axiosConfig = {

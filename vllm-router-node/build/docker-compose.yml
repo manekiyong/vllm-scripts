@@ -8,6 +8,7 @@ services:
     shm_size: 32gb
     ports:
       - 5000:5000
+    environment:
+      ROUTER_ENDPOINTS_FILE: /app/endpoints.txt
     volumes:
-      - ../src:/src
-    command: sh -c "cp /src/index.js . && node index.js"
+      - ./endpoints.txt:/app/endpoints.txt:ro

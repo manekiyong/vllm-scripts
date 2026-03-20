@@ -1,0 +1,4 @@
+# One endpoint per line
+# Format: <url> [api-token]
+# http://workstation1:port api-token-goes-here
+# http://workstation2:port
