@@ -1,0 +1,14 @@
+services:
+  vllm-router:
+    image: vllm-router-node:v0.0.1
+    stdin_open: true
+    tty: true
+    ulimits:
+      memlock: -1
+    shm_size: 32gb
+    ports:
+      - 5000:5000
+    environment:
+      ROUTER_ENDPOINTS_FILE: /app/endpoints.txt
+    volumes:
+      - ./endpoints.txt:/app/endpoints.txt:ro

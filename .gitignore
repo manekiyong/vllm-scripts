@@ -4,12 +4,15 @@ __pycache__/
 *$py.class
 .history
 
+# Endpoints files for router
+endpoints.txt
+
 # C extensions
 *.so
 
 # Distribution / packaging
 .Python
-build/
+# build/
 develop-eggs/
 dist/
 downloads/
