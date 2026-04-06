@@ -25,6 +25,8 @@ else
     RAY_START_CMD+=" --address=${HEAD_NODE_ADDRESS}:6379 --node-ip-address=${SELF_NODE_ADDRESS}"
 fi
 
+OTHER_SCRIPT_B64=$(base64 -w0 vllm/"${DOCKER_VERSION}"/"${RUN_SCRIPT}")
+
 # Run the docker command with the user specified parameters and additional arguments
 docker run \
     --entrypoint /bin/bash \
@@ -33,6 +35,11 @@ docker run \
     --shm-size 10.24g \
     --gpus all \
     --restart unless-stopped \
+    --health-cmd 'curl -f http://localhost:8000/health' \
+    --health-interval 300s \
+    --health-start-period 1800s \
+    --health-retries 3 \
+    --health-timeout 300s \
     --mount "src=${NFS_VOL_NAME},dst=${NFS_LOCAL_MNT},volume-opt=device=:${NFS_SHARE},\"volume-opt=o=addr=${NFS_SERVER},${NFS_OPTS}\",type=volume,volume-driver=local,volume-opt=type=nfs" \
     "${ADDITIONAL_ARGS[@]}" \
-    "${DOCKER_IMAGE}:${IMAGE_VERSION}" -c "${RAY_START_CMD}"
+    "${DOCKER_IMAGE}:${DOCKER_VERSION}" -c "${RAY_START_CMD} & echo ${OTHER_SCRIPT_B64} | base64 -d | bash & wait"
