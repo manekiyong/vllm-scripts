@@ -1,0 +1,11 @@
+vllm serve /models/huggingface/Qwen/Qwen3-Omni-30B-A3B-Instruct \
+    --served_model_name Qwen3-Omni-30B-A3B-Instruct \
+    --dtype bfloat16 \
+    --max-model-len 65536 \
+    --allowed-local-media-path / \
+    --tensor_parallel_size 2 \
+    --block_size 16 \
+    --seed 0 \
+    --swap_space 1 \
+    --gpu_memory_utilization 0.94 \
+    --max_num_seqs 4

@@ -35,4 +35,4 @@ docker run \
     --restart unless-stopped \
     --mount "src=${NFS_VOL_NAME},dst=${NFS_LOCAL_MNT},volume-opt=device=:${NFS_SHARE},\"volume-opt=o=addr=${NFS_SERVER},${NFS_OPTS}\",type=volume,volume-driver=local,volume-opt=type=nfs" \
     "${ADDITIONAL_ARGS[@]}" \
-    "${DOCKER_IMAGE}" -c "${RAY_START_CMD}"
+    "${DOCKER_IMAGE}:${IMAGE_VERSION}" -c "${RAY_START_CMD}"
