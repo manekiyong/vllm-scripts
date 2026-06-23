@@ -1,0 +1,11 @@
+vllm serve /models/huggingface/Qwen/Qwen3-VL-Embedding-8B \
+    --served_model_name Qwen3-VL-Embedding-8B \
+    --dtype bfloat16 \
+    --max-model-len 32768 \
+    --allowed-local-media-path / \
+    --tensor_parallel_size 1 \
+    --block_size 16 \
+    --seed 0 \
+    --swap_space 1 \
+    --gpu_memory_utilization 0.8 \
+    --runner pooling
