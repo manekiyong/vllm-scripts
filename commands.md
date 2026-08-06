@@ -1,1 +1,3 @@
 ./run_cluster.sh -e VLLM_HOST_IP=192.168.xxx.xxx -e NCCL_SOCKET_IFNAME=eno1 -e GLOO_SOCKET_IFNAME=eno1
+
+./run_cluster_multinode.sh -e VLLM_HOST_IP=192.168.xxx.xxx -e NCCL_SOCKET_IFNAME=eno1 -e GLOO_SOCKET_IFNAME=eno1
