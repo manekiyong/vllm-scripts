@@ -1,0 +1,14 @@
+vllm serve /models/huggingface/Qwen/Qwen3-Coder-Next \
+    --served_model_name Qwen3-Coder-Next \
+    --dtype bfloat16 \
+    --max-model-len 32768 \
+    --nnodes 2 \
+    --node-rank 0 \
+    --master-addr ${HEAD_IP} \
+    --allowed-local-media-path / \
+    --tensor_parallel_size 2 \
+    --pipeline_parallel_size 2 \
+    --block_size 16 \
+    --seed 0 \
+    --gpu_memory_utilization 0.94 \
+    --max_num_seqs 4
