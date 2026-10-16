@@ -1,0 +1,13 @@
+vllm serve /models/huggingface/Qwen/Qwen3.8-27B \
+    --served_model_name Qwen3.8-27B \
+    --tool-call-parser qwen3_coder \
+    --reasoning-parser qwen3 \
+    --mm-encoder-tp-mode data \
+    --enable_auto_tool_choice \
+    --max-model-len 65536 \
+    --allowed-local-media-path / \
+    --tensor_parallel_size 2 \
+    --block_size 16 \
+    --seed 0 \
+    --gpu_memory_utilization 0.94 \
+    --max_num_seqs 4
